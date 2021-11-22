@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100;300;400;500;700;900&display=swap"
+    rel="stylesheet">
+  <title>Document</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+      width: 100%;
+      font-family: 'Noto Sans TC', sans-serif;
+      font-size: 1.1rem;
+      color: darkgray;
+      clear: both;
+    }
+
+    #body.swal2-height-auto {
+      height: 100vh !important;
+    }
+
+    .container {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(45deg, rgb(230, 49, 190), rgb(67, 39, 100));
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: row;
+      flex-wrap: wrap;
+      /* overflow: hidden; */
+    }
+
+    .block {
+      position: relative;
+      height: 640px;
+      width: 650px;
+      border: 20px double rgb(42, 42, 42);
+      border-radius: 5%;
+    }
+
+    #game {
+      position: relative;
+      height: 100%;
+      border-radius: 5%;
+      background-color: black;
+      filter: blur(15px) contrast(96);
+      background-image: radial-gradient(rgb(0, 0, 0)5%,
+          rgb(255, 255, 255),
+          rgb(0, 0, 0),
+          rgb(255, 255, 255),
+          rgb(0, 0, 0),
+          rgb(255, 255, 255),
+          rgb(0, 0, 0),
+          rgb(255, 255, 255),
+          rgb(0, 0, 0),
+          rgb(255, 255, 255),
+          rgb(0, 0, 0),
+          rgb(255, 255, 255));
+      cursor: url(./cursor_black.png) 50 50, auto;
+    }
+
+
+
+    #sc {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      width: 30%;
+      height: 20%;
+      /* background-color: darkblue; */
+    }
+
+    #btn-start {
+      width: 200px;
+      font-size: 3rem;
+      font-weight: 400;
+      color: rgb(224, 224, 224);
+      background: none;
+      border: hidden;
+      text-shadow: 5px 5px 5px rgb(0, 0, 0, 0.2);
+      margin-bottom: 0;
+      font-variant: small-caps slashed-zero;
+    }
+
+    #btn-start:hover {
+      font-size: 3.5rem;
+      color: rgb(245, 179, 231);
+    }
+
+    p {
+      line-height: 1.8;
+      color: rgb(184, 184, 184);
+    }
+
+
+    .po {
+      z-index: 1000;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: rgb(0, 255, 0);
+    }
+
+    .poRed {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: rgb(255, 0, 255);
+    }
+  </style>
+</head>
+
+<body id="body">
+  <div class="container">
+    <div class="block">
+      <div id="game"></div>
+    </div>
+    <div id="sc">
+      <input type="button" value="Start" id="btn-start">
+      <br>
+      <p>分數： <span id="score">0</span> 分</p>
+      <p>剩餘： <span id="time">0</span> 秒</p>
+    </div>
+  </div>
+  <script src="./jquery-3.6.0.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    let score = 0
+    let countdown = 30
+    let timer = 0
+
+    const move = (po) => {
+      const top = `${Math.round(Math.random() * 80)}%`
+      const left = `${Math.round(Math.random() * 80)}%`
+      po.stop().animate({
+        top: top, left
+      }, 2000, function () {
+        move(po)
+      })
+    }
+
+    $('#btn-start').click(function () {
+      $(this).attr('disabled', true)
+      score = 0
+      $('#score').text(score)
+      countdown = 30
+      $('#time').text(countdown)
+
+      timer = setInterval(function () {
+        countdown--
+        $('#time').text(countdown)
+
+        let random = Math.round(Math.random() * 10)
+        if (random > 5 && $("#game .po").length < 20) {
+          const top = `${Math.round(Math.random() * 70)}%`
+          const left = `${Math.round(Math.random() * 70)}%`
+          const po = $(`<div class="po" style="top:${top}; left:${left}" ></div>`)
+          $("#game").append(po)
+          move(po)
+        }
+        if (countdown <= 0) {
+          clearInterval(timer)
+          $('#game .po').remove()
+          $('#game .poRed').remove()
+          $("#btn-start").attr('disabled', false)
+          Swal.fire({
+            icon: 'info',
+            title: '時間到',
+            text: `你得到 ${score} 分`
+          })
+        }
+      }, 1000)
+    })
+
+    $('#game').on('click', 'div', function () {
+      $(this).stop()
+      $(this).css({
+        'user-select': 'none',
+        '-webkit-user-drag': 'none',
+        'pointer-events': 'none'
+      })
+      $(this).removeClass('po').addClass('poRed')
+      score++
+      $('#score').text(score)
+    })
+  </script>
+
+</body>
+
+</html>
